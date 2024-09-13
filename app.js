@@ -1,33 +1,42 @@
 const express=require("express");
-const app=express();
-const portNumber=3000;
+const mongoose = require('mongoose');
 const path=require("path");
+
+const app=express();
+const Campground = require('./models/campground');
+const portNumber=3000;
 
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
 
-const mongoose = require('mongoose');
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect('mongodb://localhost:27017/your-database-name', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+mongoose.connect('mongodb://root:password@mongodb:27017/yelp-camp',
+  { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true })
+  .then(() => {
+      console.log('MongoDBコネクションOK！！');
+  })
+  .catch(err => {
+      console.log('MongoDBコネクションエラー！！！');
+      console.log(err);
+  });
 
-    console.log('MongoDB connected!');
-  } catch (err) {
-    console.error(err.message);
-    process.exit(1);
-  }
-};
 
-connectDB();
+
+
 
 
 
 app.get("/",(req,res)=>{
     res.render("home")
+})
+
+app.get("/makecampground",async(req,res)=>{
+    const camp= new Campground ({
+        title:`私の庭`,
+        description:`気軽に`
+    })
+    await camp.save();
+    res.send("キャンプ")
 })
 
 
